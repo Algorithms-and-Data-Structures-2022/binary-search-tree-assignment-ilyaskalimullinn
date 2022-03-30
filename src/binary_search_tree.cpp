@@ -81,13 +81,28 @@ namespace assignment {
   }
 
   bool BinarySearchTree::remove(int key, Node*& node) {
+
     if (node == nullptr) return false;
 
     if (node->key == key) {
 
       //case 1: a leaf
       if (node->left == nullptr && node->right == nullptr) {
-        delete node;
+        if (node == root_) Clear();
+        // finding a parent node for this node
+        Node* parent_node = root_;
+        Node* this_node = parent_node;
+        while (this_node->key != key) {
+          parent_node = this_node;
+          this_node = (this_node->key > key) ? this_node->left : this_node->right;
+
+        }
+        if (parent_node->key > key) {
+          parent_node->left = nullptr;
+        } else {
+          parent_node->right = nullptr;
+        }
+        delete this_node;
         return true;
       }
 
@@ -108,10 +123,13 @@ namespace assignment {
       }
 
       //case 4: has two children
-      node->key = node->right->key;
-      node->value = node->right->value;
-      return remove(node->key, node->right);
-
+      Node* new_node = find_min(node->right);
+      int key = new_node->key;
+      int value = new_node->value;
+      remove(new_node->key, root_);
+      node->key = key;
+      node->value = value;
+      return true;
     }
 
     if (node->key < key) return remove(key, node->right);
